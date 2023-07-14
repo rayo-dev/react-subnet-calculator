@@ -10,6 +10,7 @@ function SubnetCalculator() {
   const [firstHost, setFirstHost] = useState('');
   const [lastHost, setLastHost] = useState('');
   const [hostCount, setHostCount] = useState(0);
+  const [networkClass, setNetworkClass] = useState('');
 
   const calculateSubnet = () => {
     const octets = ipAddress.split('.').map(Number);
@@ -20,12 +21,14 @@ function SubnetCalculator() {
     const first = calculateFirstHost(network);
     const last = calculateLastHost(broadcast);
     const count = calculateHostCount(maskBits);
+    const networkCls = determineNetworkClass(octets[0]);
 
     setNetworkAddress(formatIPAddress(network));
     setBroadcastAddress(formatIPAddress(broadcast));
     setFirstHost(formatIPAddress(first));
     setLastHost(formatIPAddress(last));
     setHostCount(count);
+    setNetworkClass(networkCls);
   };
 
   const calculateMask = (maskBits) => {
@@ -74,6 +77,21 @@ function SubnetCalculator() {
     return ip.join('.');
   };
 
+  const determineNetworkClass = (firstOctet) => {
+    if (firstOctet >= 1 && firstOctet <= 126) {
+      return 'Class A';
+    } else if (firstOctet >= 128 && firstOctet <= 191) {
+      return 'Class B';
+    } else if (firstOctet >= 192 && firstOctet <= 223) {
+      return 'Class C';
+    } else if (firstOctet >= 224 && firstOctet <= 239) {
+      return 'Class D';
+    } else if (firstOctet >= 240 && firstOctet <= 255) {
+      return 'Class E';
+    }
+    return '';
+  };
+
   const columns: GridColDef[] = [
     { field: 'property', headerName: 'Property', flex: 1 },
     { field: 'value', headerName: 'Value', flex: 1 },
@@ -85,6 +103,7 @@ function SubnetCalculator() {
     { id: 3, property: 'First Host', value: firstHost },
     { id: 4, property: 'Last Host', value: lastHost },
     { id: 5, property: 'Host Count', value: hostCount.toString() },
+    { id: 6, property: 'Network Class', value: networkClass },
   ];
 
   return (
