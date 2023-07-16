@@ -4,8 +4,9 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 function SubnetCalculator() {
   const [ipAddress, setIpAddress] = useState('10.21.150.251');
-  const [subnetMask, setSubnetMask] = useState('/24');
+  const [prefixSize, setPrefixSize] = useState('/24');
   const [networkAddress, setNetworkAddress] = useState('');
+  const [mask, setMask] = useState('');
   const [broadcastAddress, setBroadcastAddress] = useState('');
   const [firstHost, setFirstHost] = useState('');
   const [lastHost, setLastHost] = useState('');
@@ -14,7 +15,7 @@ function SubnetCalculator() {
 
   const calculateSubnet = () => {
     const octets = ipAddress.split('.').map(Number);
-    const maskBits = Number(subnetMask.replace('/', ''));
+    const maskBits = Number(prefixSize.replace('/', ''));
     const mask = calculateMask(maskBits);
     const network = calculateNetworkAddress(octets, mask);
     const broadcast = calculateBroadcastAddress(octets, mask);
@@ -24,6 +25,7 @@ function SubnetCalculator() {
     const networkCls = determineNetworkClass(octets[0]);
 
     setNetworkAddress(formatIPAddress(network));
+    setMask(formatIPAddress(mask));
     setBroadcastAddress(formatIPAddress(broadcast));
     setFirstHost(formatIPAddress(first));
     setLastHost(formatIPAddress(last));
@@ -99,11 +101,12 @@ function SubnetCalculator() {
 
   const rows = [
     { id: 1, property: 'Network Address', value: networkAddress },
-    { id: 2, property: 'Broadcast Address', value: broadcastAddress },
-    { id: 3, property: 'First Host', value: firstHost },
-    { id: 4, property: 'Last Host', value: lastHost },
-    { id: 5, property: 'Host Count', value: hostCount.toString() },
-    { id: 6, property: 'Network Class', value: networkClass },
+    { id: 2, property: 'Subnet Mask', value: mask },
+    { id: 3, property: 'Broadcast Address', value: broadcastAddress },
+    { id: 4, property: 'First Host', value: firstHost },
+    { id: 5, property: 'Last Host', value: lastHost },
+    { id: 6, property: 'Host Count', value: hostCount.toString() },
+    { id: 7, property: 'Network Class', value: networkClass },
   ];
 
   return (
@@ -119,9 +122,9 @@ function SubnetCalculator() {
       />
 
       <TextField
-        label="Subnet Mask"
-        value={subnetMask}
-        onChange={(e) => setSubnetMask(e.target.value)}
+        label="Prefix size"
+        value={prefixSize}
+        onChange={(e) => setPrefixSize(e.target.value)}
         fullWidth
         margin="normal"
       />
