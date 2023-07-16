@@ -7,6 +7,7 @@ function SubnetCalculator() {
   const [prefixSize, setPrefixSize] = useState('/24');
   const [networkAddress, setNetworkAddress] = useState('');
   const [mask, setMask] = useState('');
+  const [binaryMask, setBinaryMask] = useState('');
   const [broadcastAddress, setBroadcastAddress] = useState('');
   const [firstHost, setFirstHost] = useState('');
   const [lastHost, setLastHost] = useState('');
@@ -17,6 +18,7 @@ function SubnetCalculator() {
     const octets = ipAddress.split('.').map(Number);
     const maskBits = Number(prefixSize.replace('/', ''));
     const mask = calculateMask(maskBits);
+    const binaryMask = calculateBinaryMask(mask);
     const network = calculateNetworkAddress(octets, mask);
     const broadcast = calculateBroadcastAddress(octets, mask);
     const first = calculateFirstHost(network);
@@ -26,6 +28,7 @@ function SubnetCalculator() {
 
     setNetworkAddress(formatIPAddress(network));
     setMask(formatIPAddress(mask));
+    setBinaryMask(formatIPAddress(binaryMask));
     setBroadcastAddress(formatIPAddress(broadcast));
     setFirstHost(formatIPAddress(first));
     setLastHost(formatIPAddress(last));
@@ -41,6 +44,18 @@ function SubnetCalculator() {
       mask[octetIndex] |= 1 << (7 - bitIndex);
     }
     return mask;
+  };
+
+  const calculateBinaryMask = (mask) => {
+    const binaryMask = mask.map((octet) => {
+      return zeroPadLeft(octet.toString(2), 8);
+    });
+    return binaryMask;
+  };
+
+  const zeroPadLeft = (value, length) => {
+    const padding = '0'.repeat(length);
+    return (padding + value).slice(-length);
   };
 
   const calculateNetworkAddress = (ip, mask) => {
@@ -102,11 +117,12 @@ function SubnetCalculator() {
   const rows = [
     { id: 1, property: 'Network Address', value: networkAddress },
     { id: 2, property: 'Subnet Mask', value: mask },
-    { id: 3, property: 'Broadcast Address', value: broadcastAddress },
-    { id: 4, property: 'First Host', value: firstHost },
-    { id: 5, property: 'Last Host', value: lastHost },
-    { id: 6, property: 'Host Count', value: hostCount.toString() },
-    { id: 7, property: 'Network Class', value: networkClass },
+    { id: 3, property: 'Binary Subnet Mask', value: binaryMask },
+    { id: 4, property: 'Broadcast Address', value: broadcastAddress },
+    { id: 5, property: 'First Host', value: firstHost },
+    { id: 6, property: 'Last Host', value: lastHost },
+    { id: 7, property: 'Number of Usable Hosts', value: hostCount.toString() },
+    { id: 8, property: 'Network Class', value: networkClass },
   ];
 
   return (
